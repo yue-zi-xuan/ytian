@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    username: root
+    password: 5757124avc
+    url: jdbc:mysql://localhost:3306/engineeringpractice?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+
+
+server:
+  port: 8007
+
+mybatis:
+  type-aliases-package: com.gcsj.pojo
+  mapper-locations: classpath:mapper/*.xml
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+

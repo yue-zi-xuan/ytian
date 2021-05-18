@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gcsj.mapper.CompetitionNewsMapper">
+    <!--public List<News> getCompetitionNews(String title)-->
+    <select id="getCompetitionNewsLike" resultType="com.gcsj.pojo.CompetitionNews" parameterType="String">
+--         select * from competitionNews
+--         where
+--             title like "%"#{title}"%";
+select * from competitionNews where title like CONCAT('%',#{title},'%');
+    </select>
+</mapper>
