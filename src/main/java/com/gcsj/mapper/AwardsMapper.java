@@ -11,5 +11,5 @@ import java.util.List;
 @Mapper
 @Repository
 public interface AwardsMapper extends BaseMapper<Awards> {
-    List<Awards> getAwardsLike(String awardsName);
+
 }

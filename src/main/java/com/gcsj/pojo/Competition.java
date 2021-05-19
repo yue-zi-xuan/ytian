@@ -2,6 +2,7 @@ package com.gcsj.pojo;
 
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -28,5 +29,11 @@ public class Competition {
     private String CompetitionTime;
     private Long visits;
     private String officiaWebsite;
+    private  String ImageUrl;
+
+    @TableField(exist = false)
+    private String year_month;
+    @TableField(exist = false)
+    private String day;
 
 }

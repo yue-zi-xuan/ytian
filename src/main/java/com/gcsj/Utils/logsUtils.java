@@ -20,7 +20,12 @@ public class logsUtils {
 
     public static String TransformTime()
     {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh.mm");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd ");
+        return sdf.format(new Date());
+    }
+    public static String TransformTime_hm()
+    {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh:mm");
         return sdf.format(new Date());
     }
     public static String TransformTime(String date) throws ParseException {

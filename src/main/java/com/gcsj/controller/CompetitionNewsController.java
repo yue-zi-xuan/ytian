@@ -7,17 +7,19 @@ import com.gcsj.Service.CompetitionNewsService;
 import com.gcsj.Utils.OperLog;
 import com.gcsj.Utils.logsUtils;
 import com.gcsj.mapper.CompetitionNewsMapper;
-import com.gcsj.pojo.Competition;
 import com.gcsj.pojo.CompetitionNews;
+import com.gcsj.pojo.News;
 import io.swagger.annotations.Api;
-import lombok.val;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @Api(tags = "竞赛资讯")
@@ -37,7 +39,7 @@ public class CompetitionNewsController {
 
     @GetMapping("/Competition/News/search/{title}")
     public List<CompetitionNews> getNewsLike(@PathVariable("title") String title) {
-        return competitionNewsMapper.getCompetitionNewsLike(title);
+        return competitionNewsService.list(new QueryWrapper<CompetitionNews>().like("title",title));
     }
 
     /**
@@ -62,8 +64,8 @@ public class CompetitionNewsController {
      * @return:String
      */
 
-    @PostMapping("competitionNews/post")
-    @OperLog(operModul = "竞赛新闻",operDesc = "修改操作",operType = "POST")
+    @PutMapping("competitionNews/put")
+    @OperLog(operModul = "竞赛新闻",operDesc = "修改操作",operType = "PUT")
     public String post(@Param("competitionNews") CompetitionNews competitionNews) throws ParseException {
         competitionNews.setTime(logsUtils.TransformTime(competitionNews.getTime()));
         if (competitionNewsService.updateById(competitionNews)) return "success!";
@@ -77,7 +79,7 @@ public class CompetitionNewsController {
      * @return:String
      */
 
-    @PutMapping("competitionNews/add")
+    @PostMapping("competitionNews/add")
     @OperLog(operModul = "竞赛新闻",operDesc = "新增竞赛新闻",operType = "ADD")
     public String add(@Param("competitionNews") CompetitionNews competitionNews) throws ParseException {
         competitionNews.setTime(logsUtils.TransformTime(competitionNews.getTime()));
@@ -119,7 +121,14 @@ public class CompetitionNewsController {
 
     @GetMapping("/competitionNews/getAll")
     public List<CompetitionNews> getAll() {
-        return competitionNewsService.list();
+
+        List<CompetitionNews> list = competitionNewsMapper.selectList(null);
+        for (CompetitionNews c:list
+             ) {
+            c.setYear_month(c.getTime().substring(0,c.getTime().lastIndexOf("-")));
+            c.setDay(c.getTime().substring(c.getTime().lastIndexOf("-")+1,c.getTime().lastIndexOf(" ")));
+        }
+        return list;
     }
 
     /**
@@ -179,6 +188,57 @@ public class CompetitionNewsController {
             list.add(competitionNews.getTitle()+"...");
         }
         return list;
+    }
+
+    @GetMapping(value = "/competitionNews/add20")
+    public void add20()
+    {
+        List<CompetitionNews> list = new ArrayList<CompetitionNews>();
+        for (int i = 0; i < 20; i++) {
+            list.add(new CompetitionNews(i+10,"cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了" +
+                    "cuit成985了cuit成985了cuit成985了" +
+                    "cuit成985了cuit成985了","AAA"+i,logsUtils.TransformTime()
+            ,"jok"+i,"sdsdsd","source",0));
+
+        }
+        competitionNewsService.saveBatch(list);
+
+    }
+
+
+    public static final String NEWS_PATH_PREFIX = "static/competition/news/";
+    @RequestMapping(value = "/Competition/news/upload", method = RequestMethod.POST)
+    public String upload(@RequestParam("file") MultipartFile file,
+                         @RequestParam("id")Long id) throws ParseException {
+
+        if (file.isEmpty())
+            return "请传入文件";
+        String realPath = "src/main/resources/"+ NEWS_PATH_PREFIX;
+        String format = logsUtils.TransformTime_hm();
+        String oldName = file.getOriginalFilename();
+        File dest = new File(realPath);
+        if(!dest.isDirectory()){
+            //递归生成文件夹
+            dest.mkdirs();
+        }
+        String newName = UUID.randomUUID().toString() + oldName.substring(oldName.lastIndexOf("."),oldName.length());
+        try {
+            //构建真实的文件路径
+            File newFile = new File(dest.getAbsolutePath()+File.separator+newName);
+            System.out.println(dest.getAbsolutePath());
+            System.out.println(newFile.getAbsolutePath());
+            file.transferTo(newFile);
+            String ImageUrl = realPath + file.getOriginalFilename();
+
+            final CompetitionNews competitionNews = competitionNewsService.getById(id);
+            competitionNews.setImageUrl(ImageUrl);
+            competitionNewsService.updateById(competitionNews);
+            return ImageUrl;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "上传失败!";
+
     }
 }
 

@@ -1,14 +1,22 @@
-spring:
-  datasource:
-    username: root
-    password: 5757124avc
-    url: jdbc:mysql://localhost:3306/engineeringpractice?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    type: com.alibaba.druid.pool.DruidDataSource
 
 
 server:
   port: 8007
+
+
+
+spring:
+  servlet:
+    multipart:
+      max-request-size: 500MB
+      max-file-size: 20MB
+  datasource:
+    username: root
+    password: 5757124avc
+    url: jdbc:mysql://47.108.183.192:3306/engineeringpractice?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+
 
 mybatis:
   type-aliases-package: com.gcsj.pojo

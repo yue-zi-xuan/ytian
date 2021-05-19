@@ -5,17 +5,22 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gcsj.Service.AwardsService;
 import com.gcsj.Utils.OperLog;
+import com.gcsj.Utils.logsUtils;
 import com.gcsj.mapper.AwardsMapper;
 import com.gcsj.pojo.Awards;
-import com.gcsj.pojo.Constants;
+import com.gcsj.pojo.News;
 import io.swagger.annotations.Api;
+import lombok.val;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @Api(tags = "竞赛奖项")
@@ -27,7 +32,6 @@ public class AwardsController {
     @Autowired
     AwardsService awardsService;
 
-
     /**
      * @author:岳子譞
      * @description :查询所有
@@ -38,7 +42,15 @@ public class AwardsController {
     @ResponseBody
     @GetMapping("/Awards/getAll")
     public List<Awards> getAll() {
-        return awardsMapper.selectList(null);
+
+
+        List<Awards> list = awardsMapper.selectList(null);
+        for (Awards c:list
+        ) {
+            c.setYear_month(c.getTime().substring(0,c.getTime().lastIndexOf("-")));
+            c.setDay(c.getTime().substring(c.getTime().lastIndexOf("-")+1,c.getTime().lastIndexOf(" ")));
+        }
+        return list;
     }
 
 
@@ -82,7 +94,7 @@ public class AwardsController {
     @GetMapping("/Awards/search/{AwardsName}")
     public List<Awards> getAwardsLike(@PathVariable("AwardsName") String awardsName)
     {
-        return awardsMapper.getAwardsLike(awardsName);
+       return awardsService.list(new QueryWrapper<Awards>().like("awardsName",awardsName));
     }
 
     /**
@@ -106,7 +118,7 @@ public class AwardsController {
      * @return:String
      */
 
-    @PutMapping("/Awards/add")
+    @PostMapping("/Awards/add")
     @OperLog(operModul = "奖项",operDesc = "新增操作",operType = "ADD")
     public String add(@Param("awards") Awards awards)
     {
@@ -121,8 +133,8 @@ public class AwardsController {
      * @Date:2021/4/21
      * @return:String
      */
-    @PostMapping("/Awards/post")
-    @OperLog(operModul = "奖项",operDesc = "新增操作",operType = "ADD")
+    @PutMapping("/Awards/post")
+    @OperLog(operModul = "奖项",operDesc = "修改操作",operType = "PUT")
     public String post(@Param("awards") Awards awards)
     {
         if(awardsService.updateById(awards))
@@ -164,5 +176,38 @@ public class AwardsController {
         List<Awards> awards = page.getRecords();
         awards.forEach(n->list.add(n.getAwardsName()));
         return list;
+    }
+    public static final String PATH_PREFIX = "static/awards/";
+
+    @RequestMapping(value = "/awards/upload", method = RequestMethod.POST)
+    public String upload(@RequestParam("file") MultipartFile file,
+                         @RequestParam("id")Long id) throws ParseException {
+
+        if (file.isEmpty())
+            return "请传入文件";
+        String realPath = "src/main/resources/"+ PATH_PREFIX;
+        String format = logsUtils.TransformTime_hm();
+        String oldName = file.getOriginalFilename();
+        File dest = new File(realPath);
+        if(!dest.isDirectory()){
+            //递归生成文件夹
+            dest.mkdirs();
+        }
+        String newName = UUID.randomUUID().toString() + oldName.substring(oldName.lastIndexOf("."),oldName.length());
+        try {
+            //构建真实的文件路径
+            File newFile = new File(dest.getAbsolutePath()+File.separator+newName);
+            System.out.println(dest.getAbsolutePath());
+            System.out.println(newFile.getAbsolutePath());
+            file.transferTo(newFile);
+            String ImageUrl = realPath + file.getOriginalFilename();
+            final Awards awards = awardsService.getById(id);
+            awards.setScan(ImageUrl);
+            awardsService.updateById(awards);
+            return ImageUrl;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "上传失败!";
     }
 }
