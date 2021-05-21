@@ -41,7 +41,7 @@ public class CompetitionController {
      * @Date:2021/4/21
      * @return:Competition
      */
-    @GetMapping("/competition/getById")
+    @GetMapping("/competition/getById/{id}")
     public Competition getById(@PathVariable("id")Long id)
     {
             return completionService.getById(id);
@@ -138,11 +138,11 @@ public class CompetitionController {
     {
 
         List<Competition> list = competitionMapper.selectList(null);
-        for (Competition c:list
-        ) {
-            c.setYear_month(c.getCompetitionTime().substring(0,c.getCompetitionTime().lastIndexOf("-")));
-            c.setDay(c.getCompetitionTime().substring(c.getCompetitionTime().lastIndexOf("-")+1,c.getCompetitionTime().lastIndexOf(" ")));
-        }
+//        for (Competition c:list
+//        ) {
+//            c.setYear_month(c.getCompetitionTime().substring(0,c.getCompetitionTime().lastIndexOf("-")));
+//            c.setDay(c.getCompetitionTime().substring(c.getCompetitionTime().lastIndexOf("-")+1,c.getCompetitionTime().lastIndexOf(" ")));
+//        }
         return list;
     }
 
@@ -185,7 +185,7 @@ public class CompetitionController {
 
     public static final String PATH_PREFIX = "static/competition/";
 
-    @RequestMapping(value = "/awards/upload", method = RequestMethod.POST)
+    @RequestMapping(value = "/competition/upload", method = RequestMethod.POST)
     public String upload(@RequestParam("file") MultipartFile file,
                          @RequestParam("id")Long id) throws ParseException {
 

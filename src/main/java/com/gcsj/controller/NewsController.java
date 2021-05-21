@@ -1,17 +1,20 @@
 package com.gcsj.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gcsj.Service.NewsService;
 import com.gcsj.Utils.OperLog;
 import com.gcsj.Utils.logsUtils;
 import com.gcsj.mapper.NewsMapper;
+import com.gcsj.pojo.Awards;
 import com.gcsj.pojo.CompetitionNews;
 import com.gcsj.pojo.News;
 import com.sun.org.apache.bcel.internal.generic.NEW;
 import io.swagger.annotations.Api;
 import lombok.val;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -229,6 +232,22 @@ public class NewsController {
             e.printStackTrace();
         }
         return "上传失败!";
+    }
+
+
+    @GetMapping(value = "/news/updateId")
+    public String UpdateId()
+    {
+        final List<News> list = newsService.list();
+        Long i = 1L;
+        for (News a:list
+        ) {
+            a.setId(i);
+            System.out.println(a.getTitle());
+            newsMapper.update(null,new UpdateWrapper<News>().eq("title",a.getTitle()).set("id",i));
+            i++;
+        }
+        return "success";
     }
 
 }

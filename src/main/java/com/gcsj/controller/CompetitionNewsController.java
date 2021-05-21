@@ -2,6 +2,7 @@ package com.gcsj.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gcsj.Service.CompetitionNewsService;
 import com.gcsj.Utils.OperLog;
@@ -207,7 +208,7 @@ public class CompetitionNewsController {
 
 
     public static final String NEWS_PATH_PREFIX = "static/competition/news/";
-    @RequestMapping(value = "/Competition/news/upload", method = RequestMethod.POST)
+    @RequestMapping(value = "/CompetitionNews/upload", method = RequestMethod.POST)
     public String upload(@RequestParam("file") MultipartFile file,
                          @RequestParam("id")Long id) throws ParseException {
 
@@ -239,6 +240,22 @@ public class CompetitionNewsController {
         }
         return "上传失败!";
 
+    }
+
+
+    @GetMapping(value = "/competitionNews/updateId")
+    public String UpdateId()
+    {
+        final List<CompetitionNews> list = competitionNewsService.list();
+        Long i = 1L;
+        for (CompetitionNews a:list
+        ) {
+            a.setId(i);
+            System.out.println(a.getTitle());
+            competitionNewsMapper.update(null,new UpdateWrapper<CompetitionNews>().eq("title",a.getTitle()).set("id",i));
+            i++;
+        }
+        return "success";
     }
 }
 

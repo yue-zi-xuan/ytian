@@ -8,6 +8,7 @@ import com.gcsj.mapper.MyAdminMapper;
 import com.gcsj.pojo.Constants;
 import com.gcsj.pojo.MyAdmin;
 import io.swagger.annotations.Api;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,7 @@ import java.util.List;
 
 @RestController
 @Api(tags = "普通管理员")
+@Slf4j
 public class MyAdminController {
 
     @Autowired

@@ -47,8 +47,11 @@ public class AwardsController {
         List<Awards> list = awardsMapper.selectList(null);
         for (Awards c:list
         ) {
-            c.setYear_month(c.getTime().substring(0,c.getTime().lastIndexOf("-")));
-            c.setDay(c.getTime().substring(c.getTime().lastIndexOf("-")+1,c.getTime().lastIndexOf(" ")));
+            if (c.getTime()!=null)
+            {
+                c.setYear_month(c.getTime().substring(0,c.getTime().lastIndexOf("-")));
+                c.setDay(c.getTime().substring(c.getTime().lastIndexOf("-")+1,c.getTime().lastIndexOf(" ")));
+            }
         }
         return list;
     }
@@ -209,5 +212,18 @@ public class AwardsController {
             e.printStackTrace();
         }
         return "上传失败!";
+    }
+
+    public String UpdateId()
+    {
+        final List<Awards> list = awardsService.list();
+        Long i = 1L;
+        for (Awards a:list
+             ) {
+            a.setAwardsId(i);
+            awardsService.update(a,new QueryWrapper<Awards>().eq("awardsName",a.getAwardsName()));
+            i++;
+        }
+       return "success";
     }
 }
