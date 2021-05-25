@@ -2,7 +2,6 @@ package com.gcsj.controller;
 
 import com.gcsj.Service.NoticeService;
 import com.gcsj.Utils.OperLog;
-import com.gcsj.Utils.OperType;
 import com.gcsj.mapper.NoticeMapper;
 import com.gcsj.pojo.notice;
 import io.swagger.annotations.Api;
@@ -27,8 +26,11 @@ public class noticeController {
         List<notice> list = noticeService.list();
         for (notice c:list
         ) {
-            c.setYear_month(c.getTime().substring(0,c.getTime().lastIndexOf("-")));
-            c.setDay(c.getTime().substring(c.getTime().lastIndexOf("-")+1,c.getTime().lastIndexOf(" ")));
+           if (c.getTime()!=null){
+               c.setYear_month(c.getTime().substring(0,c.getTime().lastIndexOf("-")));
+               c.setDay(c.getTime().substring(c.getTime().lastIndexOf("-")+1,c.getTime().lastIndexOf(" ")));
+               c.setTime(c.getTime().substring(0,c.getTime().lastIndexOf(" ")));
+           }
         }
         return list;
     }

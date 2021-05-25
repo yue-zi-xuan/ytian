@@ -20,7 +20,7 @@ public class Awards {
     private Long awardsLevel;
     private Long competitionID;
     private String time;
-    private String scan;
+    private int picId;
 
     @TableField(exist = false)
     private String year_month;

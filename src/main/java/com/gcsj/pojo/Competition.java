@@ -29,7 +29,7 @@ public class Competition {
     private String CompetitionTime;
     private Long visits;
     private String officiaWebsite;
-    private  String ImageUrl;
+    private int picId;
 
     @TableField(exist = false)
     private String year_month;

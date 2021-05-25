@@ -16,5 +16,5 @@ public class StuCertificate {
     private Long StuID;
     private Long certificateID;
     private String time;
-    private  String scan;
+    private int picId;
 }

@@ -7,18 +7,24 @@ import com.gcsj.Service.CompetitionService;
 import com.gcsj.Utils.OperLog;
 import com.gcsj.Utils.logsUtils;
 import com.gcsj.mapper.CompetitionMapper;
+import com.gcsj.mapper.PictureMapper;
 import com.gcsj.pojo.Awards;
 import com.gcsj.pojo.Competition;
 import com.gcsj.pojo.CompetitionNews;
+import com.gcsj.pojo.picture;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,7 +91,7 @@ public class CompetitionController {
      * @return:String
      */
     @ResponseBody
-    @PutMapping("/competition/add")
+    @PostMapping("/competition/add")
     @OperLog(operModul = "竞赛",operDesc = "更新操作",operType = "ADD")
     public String addCompetition(@Param("competition") Competition competition){
         if(completionService.save(competition))
@@ -185,37 +191,97 @@ public class CompetitionController {
 
     public static final String PATH_PREFIX = "static/competition/";
 
-    @RequestMapping(value = "/competition/upload", method = RequestMethod.POST)
-    public String upload(@RequestParam("file") MultipartFile file,
-                         @RequestParam("id")Long id) throws ParseException {
+//    @RequestMapping(value = "/competition/upload", method = RequestMethod.POST)
+//    public String upload(@RequestParam("file") MultipartFile file,
+//                         @RequestParam("id")Long id) throws ParseException {
+//
+//        if (file.isEmpty())
+//            return "请传入文件";
+//        String realPath = "src/main/resources/"+ PATH_PREFIX;
+//        String format = logsUtils.TransformTime_hm();
+//        String oldName = file.getOriginalFilename();
+//        File dest = new File(realPath);
+//        if(!dest.isDirectory()){
+//            //递归生成文件夹
+//            dest.mkdirs();
+//        }
+//        String newName = UUID.randomUUID().toString() + oldName.substring(oldName.lastIndexOf("."),oldName.length());
+//        try {
+//            //构建真实的文件路径
+//            File newFile = new File(dest.getAbsolutePath()+File.separator+newName);
+//            System.out.println(dest.getAbsolutePath());
+//            System.out.println(newFile.getAbsolutePath());
+//            file.transferTo(newFile);
+//            String ImageUrl = realPath + file.getOriginalFilename();
+//            final Competition competition = completionService.getById(id);
+//            competition.setImageUrl(ImageUrl);
+//            completionService.updateById(competition);
+//            return ImageUrl;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return "上传失败!";
+//    }
 
-        if (file.isEmpty())
-            return "请传入文件";
-        String realPath = "src/main/resources/"+ PATH_PREFIX;
-        String format = logsUtils.TransformTime_hm();
-        String oldName = file.getOriginalFilename();
-        File dest = new File(realPath);
-        if(!dest.isDirectory()){
-            //递归生成文件夹
-            dest.mkdirs();
+
+    @Autowired
+    PictureMapper pictureMapper;
+
+    @PostMapping("/competition/upload/{id}")
+    @ApiOperation(value = "上传图片")
+    public String savePic(@RequestParam("file") MultipartFile file, @PathVariable("id")int id) {
+        if (file.isEmpty()) {
+            return "上传失败，请选择文件";
         }
-        String newName = UUID.randomUUID().toString() + oldName.substring(oldName.lastIndexOf("."),oldName.length());
         try {
-            //构建真实的文件路径
-            File newFile = new File(dest.getAbsolutePath()+File.separator+newName);
-            System.out.println(dest.getAbsolutePath());
-            System.out.println(newFile.getAbsolutePath());
-            file.transferTo(newFile);
-            String ImageUrl = realPath + file.getOriginalFilename();
+            InputStream is = file.getInputStream();
+            byte[] pic = new byte[(int) file.getSize()];
+            is.read(pic);
+            final picture picture = new picture();
+            picture.setPic(pic);
+            pictureMapper.insert(picture);
             final Competition competition = completionService.getById(id);
-            competition.setImageUrl(ImageUrl);
-            completionService.updateById(competition);
-            return ImageUrl;
-        } catch (Exception e) {
+            final List<picture> pictures = pictureMapper.selectList(null);
+
+            int pId;
+            if (pictures.size()==0)
+            {
+                pId = 1;
+            }
+            else
+            {
+                pId = pictures.get(pictures.size()-1).getId();
+            }
+            competition.setPicId(pId);
+            competitionMapper.updateById(competition);
+
+
+            return "上传成功";
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return "上传失败!";
+        return "success";
     }
+
+
+    @GetMapping(value="/competition/getPhoto/{id}")
+    @Async
+    @ApiOperation(value = "获取图片,通过表格表记录的ID")
+    public void getPhotoById(@PathVariable("id")int id, final HttpServletResponse response) throws IOException {
+        picture p = pictureMapper.selectById(id);
+        byte[] data = p.getPic();
+        response.setContentType("image/png");
+        response.setCharacterEncoding("UTF-8");
+        OutputStream outputSream = response.getOutputStream();
+        InputStream in = new ByteArrayInputStream(data);
+        int len = 0;
+        byte[] buf = new byte[1024];
+        while ((len = in.read(buf, 0, 1024)) != -1) {
+            outputSream.write(buf, 0, len);
+        }
+        outputSream.close();
+    }
+
 
 
 }

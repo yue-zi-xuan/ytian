@@ -8,15 +8,21 @@ import com.gcsj.Service.CompetitionNewsService;
 import com.gcsj.Utils.OperLog;
 import com.gcsj.Utils.logsUtils;
 import com.gcsj.mapper.CompetitionNewsMapper;
+import com.gcsj.mapper.PictureMapper;
+import com.gcsj.pojo.Competition;
 import com.gcsj.pojo.CompetitionNews;
 import com.gcsj.pojo.News;
+import com.gcsj.pojo.picture;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +59,7 @@ public class CompetitionNewsController {
     @GetMapping("/CompetitionNews/getAllName")
     public List<String> getAllName() {
         List<String> list = new ArrayList<>();
-        List<CompetitionNews> competitionNews = competitionNewsMapper.selectList(new QueryWrapper<CompetitionNews>().select("title"));
+        List<CompetitionNews> competitionNews = competitionNewsService.list();
         competitionNews.forEach(n->list.add(n.getTitle()));
         return list;
     }
@@ -126,8 +132,11 @@ public class CompetitionNewsController {
         List<CompetitionNews> list = competitionNewsMapper.selectList(null);
         for (CompetitionNews c:list
              ) {
-            c.setYear_month(c.getTime().substring(0,c.getTime().lastIndexOf("-")));
-            c.setDay(c.getTime().substring(c.getTime().lastIndexOf("-")+1,c.getTime().lastIndexOf(" ")));
+           if (c.getTime()!=null){
+               c.setYear_month(c.getTime().substring(0,c.getTime().lastIndexOf("-")));
+               c.setDay(c.getTime().substring(c.getTime().lastIndexOf("-")+1,c.getTime().lastIndexOf(" ")));
+               c.setTime(c.getTime().substring(0,c.getTime().lastIndexOf(" ")));
+           }
         }
         return list;
     }
@@ -191,55 +200,99 @@ public class CompetitionNewsController {
         return list;
     }
 
-    @GetMapping(value = "/competitionNews/add20")
-    public void add20()
-    {
-        List<CompetitionNews> list = new ArrayList<CompetitionNews>();
-        for (int i = 0; i < 20; i++) {
-            list.add(new CompetitionNews(i+10,"cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了cuit成985了" +
-                    "cuit成985了cuit成985了cuit成985了" +
-                    "cuit成985了cuit成985了","AAA"+i,logsUtils.TransformTime()
-            ,"jok"+i,"sdsdsd","source",0));
 
+
+//    public static final String NEWS_PATH_PREFIX = "static/competition/news/";
+//    @RequestMapping(value = "/CompetitionNews/upload", method = RequestMethod.POST)
+//    public String upload(@RequestParam("file") MultipartFile file,
+//                         @RequestParam("id")Long id) throws ParseException {
+//
+//        if (file.isEmpty())
+//            return "请传入文件";
+//        String realPath = "src/main/resources/"+ NEWS_PATH_PREFIX;
+//        String format = logsUtils.TransformTime_hm();
+//        String oldName = file.getOriginalFilename();
+//        File dest = new File(realPath);
+//        if(!dest.isDirectory()){
+//            //递归生成文件夹
+//            dest.mkdirs();
+//        }
+//        String newName = UUID.randomUUID().toString() + oldName.substring(oldName.lastIndexOf("."),oldName.length());
+//        try {
+//            //构建真实的文件路径
+//            File newFile = new File(dest.getAbsolutePath()+File.separator+newName);
+//            System.out.println(dest.getAbsolutePath());
+//            System.out.println(newFile.getAbsolutePath());
+//            file.transferTo(newFile);
+//            String ImageUrl = realPath + file.getOriginalFilename();
+//
+//            final CompetitionNews competitionNews = competitionNewsService.getById(id);
+//            competitionNews.setImageUrl(ImageUrl);
+//            competitionNewsService.updateById(competitionNews);
+//            return ImageUrl;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return "上传失败!";
+//
+//    }
+
+    @Autowired
+    PictureMapper pictureMapper;
+
+    @PostMapping("/competitionNews/upload/{id}")
+    @ApiOperation(value = "上传图片")
+    public String savePic(@RequestParam("file") MultipartFile file, @PathVariable("id")int id) {
+        if (file.isEmpty()) {
+            return "上传失败，请选择文件";
         }
-        competitionNewsService.saveBatch(list);
+        try {
+            InputStream is = file.getInputStream();
+            byte[] pic = new byte[(int) file.getSize()];
+            is.read(pic);
+            final picture picture = new picture();
+            picture.setPic(pic);
+            pictureMapper.insert(picture);
+            CompetitionNews competitionNews = competitionNewsService.getById(id);
+            final List<picture> pictures = pictureMapper.selectList(null);
 
+            int pId;
+            if (pictures.size()==0)
+            {
+                pId = 1;
+            }
+            else
+            {
+                pId = pictures.get(pictures.size()-1).getId();
+            }
+            competitionNews.setPicId(pId);
+            competitionNewsService.updateById(competitionNews);
+
+
+            return "上传成功";
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "success";
     }
 
 
-    public static final String NEWS_PATH_PREFIX = "static/competition/news/";
-    @RequestMapping(value = "/CompetitionNews/upload", method = RequestMethod.POST)
-    public String upload(@RequestParam("file") MultipartFile file,
-                         @RequestParam("id")Long id) throws ParseException {
-
-        if (file.isEmpty())
-            return "请传入文件";
-        String realPath = "src/main/resources/"+ NEWS_PATH_PREFIX;
-        String format = logsUtils.TransformTime_hm();
-        String oldName = file.getOriginalFilename();
-        File dest = new File(realPath);
-        if(!dest.isDirectory()){
-            //递归生成文件夹
-            dest.mkdirs();
+    @GetMapping(value="/competitionNews/getPhoto/{id}")
+    @Async
+    @ApiOperation(value = "获取图片,通过表格表记录的ID")
+    public void getPhotoById(@PathVariable("id")int id, final HttpServletResponse response) throws IOException {
+        picture p = pictureMapper.selectById(id);
+        byte[] data = p.getPic();
+        response.setContentType("image/png");
+        response.setCharacterEncoding("UTF-8");
+        OutputStream outputSream = response.getOutputStream();
+        InputStream in = new ByteArrayInputStream(data);
+        int len = 0;
+        byte[] buf = new byte[1024];
+        while ((len = in.read(buf, 0, 1024)) != -1) {
+            outputSream.write(buf, 0, len);
         }
-        String newName = UUID.randomUUID().toString() + oldName.substring(oldName.lastIndexOf("."),oldName.length());
-        try {
-            //构建真实的文件路径
-            File newFile = new File(dest.getAbsolutePath()+File.separator+newName);
-            System.out.println(dest.getAbsolutePath());
-            System.out.println(newFile.getAbsolutePath());
-            file.transferTo(newFile);
-            String ImageUrl = realPath + file.getOriginalFilename();
-
-            final CompetitionNews competitionNews = competitionNewsService.getById(id);
-            competitionNews.setImageUrl(ImageUrl);
-            competitionNewsService.updateById(competitionNews);
-            return ImageUrl;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "上传失败!";
-
+        outputSream.close();
     }
 
 

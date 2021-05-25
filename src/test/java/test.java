@@ -1,10 +1,9 @@
 import com.gcsj.Service.CertificateYueService;
 import com.gcsj.Service.StuCertificateService;
 import com.gcsj.Service.StudentService;
-import com.gcsj.mapper.StuCertificateMapper;
 import com.gcsj.pojo.Certificate_YUE;
 import com.gcsj.pojo.StuCertificate;
-import com.gcsj.pojo.student;
+import com.gcsj.pojo.student_y;
 import org.junit.Test;
 
 
@@ -34,7 +33,7 @@ public class test {
         Integer value  = 0;
         //获取所有学生信息
         final HashMap<String, Integer> maps = new HashMap<String, Integer>();
-        List<student> list = studentService.list(null);
+        List<student_y> list = studentService.list(null);
         List<Long> ls1 = new ArrayList<>();
         list.forEach(n->ls1.add(n.getStuID()));
         System.out.println(ls1);

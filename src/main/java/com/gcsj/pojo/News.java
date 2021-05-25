@@ -13,18 +13,6 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class News {
-
-    public News(long id, String content, String title, String time, String author, String imageUrl, String source, int visits) {
-        this.id = id;
-        this.content = content;
-        this.title = title;
-        this.time = time;
-        this.author = author;
-        this.imageUrl = imageUrl;
-        this.source = source;
-        this.visits = visits;
-    }
-
     @TableId(type= IdType.AUTO)
     private long id;
     private String content;
@@ -37,7 +25,7 @@ public class News {
     private String day;
 
     private String author;
-    private String imageUrl;
+    private int picId;
     private String source;
     private int visits;
 }

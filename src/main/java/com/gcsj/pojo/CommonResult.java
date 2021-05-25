@@ -10,13 +10,7 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-public class CommonResult <T>{
+public class CommonResult{
     private Integer value;
     private String  name;
-    private T       data;
-
-    public CommonResult(Integer code,String message)
-    {
-        this(code,message,null);
-    }
 }
