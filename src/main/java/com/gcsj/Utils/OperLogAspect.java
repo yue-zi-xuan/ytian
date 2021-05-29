@@ -1,9 +1,10 @@
 package com.gcsj.Utils;
 
 
-import com.alibaba.fastjson.JSON;
+import com.gcsj.annotation.OperLog;
 import com.gcsj.mapper.OperationLogMapper;
 import com.gcsj.pojo.OperationLog;
+import jdk.nashorn.internal.parser.Token;
 import lombok.extern.slf4j.Slf4j;
 
 import org.aspectj.lang.JoinPoint;
@@ -41,7 +42,7 @@ public class OperLogAspect {
     /**
      * 设置操作日志切入点 记录操作日志 在注解的位置切入代码
      */
-    @Pointcut("@annotation(com.gcsj.Utils.OperLog)")
+    @Pointcut("@annotation(com.gcsj.annotation.OperLog)")
     public void operLogPoinCut() {
     }
 
@@ -59,6 +60,9 @@ public class OperLogAspect {
         // 从获取RequestAttributes中获取HttpServletRequest的信息
         HttpServletRequest request = (HttpServletRequest) requestAttributes
                 .resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        String token = request.getHeader("token");
+        String username =(String)JwtTokenUtil.getClaim(token).get("username");
+
         Object args[] = joinPoint.getArgs();
 
         OperationLog operlog = new OperationLog();
@@ -74,9 +78,9 @@ public class OperLogAspect {
                 String operModul = opLog.operModul();
                 String operType = opLog.operType();
                 String operDesc = opLog.operDesc();
-                operlog.setOperModul(operModul); // 操作模块
-                operlog.setOperType(operType); // 操作类型
-                operlog.setOperDesc(operDesc); // 操作描述
+                operlog.setOperModul(operModul); //填入操作模块
+                operlog.setOperType(operType); //填入操作类型
+                operlog.setOperDesc(operDesc); //填入操作描述
             }
             // 获取请求的类名
             String className = joinPoint.getTarget().getClass().getName();
@@ -86,21 +90,18 @@ public class OperLogAspect {
 
             operlog.setOperMethod(methodName); // 请求方法
             operlog.setOperTime(new logsUtils().TransformTime());//请求时间
-            operlog.setOperAdminName(logsUtils.GetUerName());
+            operlog.setOperAdminName(username); //管理员名称
 
             // 请求的参数
-            Map<String, String> rtnMap = converMap(request.getParameterMap());
+            // Map<String, String> rtnMap = converMap(request.getParameterMap());//暂时无用
             // 将参数所在的数组转换成String
             String params = null;
             for (int i = 0; i < args.length; i++) {
                 params = params  + "第" + (i+1) + "个参数为:" + args[i];
             }
-
-
-            System.out.println("");
-            operlog.setOperRequParam(params); //返回请求参数
+            operlog.setOperRequParam(params);//返回请求参数
             log.info("当前的记录是:"+methodName+params);
-            operationLogMapper.insert(operlog);
+            operationLogMapper.insert(operlog);//插入到数据库
         } catch (Exception e) {
             e.printStackTrace();
         }

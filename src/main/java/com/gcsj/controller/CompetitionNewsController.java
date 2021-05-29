@@ -5,13 +5,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gcsj.Service.CompetitionNewsService;
-import com.gcsj.Utils.OperLog;
+import com.gcsj.annotation.LoginToken;
+import com.gcsj.annotation.OperLog;
 import com.gcsj.Utils.logsUtils;
 import com.gcsj.mapper.CompetitionNewsMapper;
 import com.gcsj.mapper.PictureMapper;
-import com.gcsj.pojo.Competition;
 import com.gcsj.pojo.CompetitionNews;
-import com.gcsj.pojo.News;
 import com.gcsj.pojo.picture;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,7 +25,6 @@ import java.io.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @Api(tags = "竞赛资讯")
@@ -72,6 +70,7 @@ public class CompetitionNewsController {
      */
 
     @PutMapping("competitionNews/put")
+    @LoginToken
     @OperLog(operModul = "竞赛新闻",operDesc = "修改操作",operType = "PUT")
     public String post(@Param("competitionNews") CompetitionNews competitionNews) throws ParseException {
         competitionNews.setTime(logsUtils.TransformTime(competitionNews.getTime()));
@@ -87,6 +86,7 @@ public class CompetitionNewsController {
      */
 
     @PostMapping("competitionNews/add")
+    @LoginToken
     @OperLog(operModul = "竞赛新闻",operDesc = "新增竞赛新闻",operType = "ADD")
     public String add(@Param("competitionNews") CompetitionNews competitionNews) throws ParseException {
         competitionNews.setTime(logsUtils.TransformTime(competitionNews.getTime()));
@@ -102,6 +102,7 @@ public class CompetitionNewsController {
      */
 
     @DeleteMapping("/competitionNews/del/{id}")
+    @LoginToken
     @OperLog(operModul = "竞赛新闻",operDesc = "删除新闻ById",operType = "DEL")
     public void delete(@PathVariable("id") Long id) {
         competitionNewsService.removeById(id);

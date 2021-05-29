@@ -4,31 +4,25 @@ package com.gcsj.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gcsj.Service.CompetitionService;
-import com.gcsj.Utils.OperLog;
-import com.gcsj.Utils.logsUtils;
+import com.gcsj.annotation.LoginToken;
+import com.gcsj.annotation.OperLog;
 import com.gcsj.mapper.CompetitionMapper;
 import com.gcsj.mapper.PictureMapper;
-import com.gcsj.pojo.Awards;
 import com.gcsj.pojo.Competition;
-import com.gcsj.pojo.CompetitionNews;
 import com.gcsj.pojo.picture;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -77,8 +71,9 @@ public class CompetitionController {
      * @Date:2021/4/21
      * @return:void
      */
-    @ResponseBody
+
     @DeleteMapping("/competition/del/{id}")
+    @LoginToken
     @OperLog(operModul = "竞赛",operDesc = "删除操作",operType = "DEL")
     public void deleteCompetition(@PathVariable("id") Long id){
         competitionMapper.deleteById(id);
@@ -92,6 +87,7 @@ public class CompetitionController {
      */
     @ResponseBody
     @PostMapping("/competition/add")
+    @LoginToken
     @OperLog(operModul = "竞赛",operDesc = "更新操作",operType = "ADD")
     public String addCompetition(@Param("competition") Competition competition){
         if(completionService.save(competition))
@@ -106,8 +102,9 @@ public class CompetitionController {
      * @Date:2021/4/21
      * @return:String
      */
-    @ResponseBody
+
     @PutMapping("/competition/put")
+    @LoginToken
     @OperLog(operModul = "竞赛",operDesc = "修改操作",operType = "PUT")
     public String postCompetition(@Param("competition") Competition competition){
         if(completionService.updateById(competition))
@@ -123,7 +120,7 @@ public class CompetitionController {
      * @return:List<Competition>
      */
 
-    @ResponseBody
+
     @GetMapping("/competition/search/{Name}")
     public List<Competition> getCompetitionLike(@PathVariable("Name")String Name)
     {

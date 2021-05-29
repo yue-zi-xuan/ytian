@@ -4,33 +4,19 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gcsj.Service.NewsService;
-import com.gcsj.Utils.OperLog;
+import com.gcsj.annotation.LoginToken;
+import com.gcsj.annotation.OperLog;
 import com.gcsj.Utils.logsUtils;
 import com.gcsj.mapper.NewsMapper;
-import com.gcsj.mapper.PictureMapper;
-import com.gcsj.pojo.Awards;
-import com.gcsj.pojo.CompetitionNews;
 import com.gcsj.pojo.News;
-import com.gcsj.pojo.picture;
-import com.sun.org.apache.bcel.internal.generic.NEW;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import lombok.val;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Update;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @Api(tags = "新闻资讯")
@@ -61,6 +47,7 @@ public class NewsController {
      */
 
     @PostMapping("News/add")
+    @LoginToken
     @OperLog(operModul = "新闻",operDesc = "新增新闻",operType = "ADD")
     public String add(@Param("news") News news) throws ParseException {
         news.setTime(logsUtils.TransformTime(news.getTime()));
@@ -75,6 +62,7 @@ public class NewsController {
      */
 
     @PutMapping("News/put")
+    @LoginToken
     @OperLog(operModul = "新闻",operDesc = "修改新闻",operType = "PUT")
     public String post(@Param("news") News news) throws ParseException {
         news.setTime(logsUtils.TransformTime(news.getTime()));
@@ -89,6 +77,7 @@ public class NewsController {
      */
 
     @DeleteMapping("/News/del/{id}")
+    @LoginToken
     @OperLog(operModul = "新闻",operDesc = "删除新闻ById",operType = "DEL")
     public void delete(@PathVariable("id")Long id)
     {
@@ -238,63 +227,64 @@ public class NewsController {
 //    }
 
 
-    @Autowired
-    private PictureMapper pictureMapper;
-
-    @PostMapping("/news/upload/{id}")
-    @ApiOperation(value = "上传文件")
-    public String savePic(@RequestParam("file") MultipartFile file,@PathVariable("id")int id) {
-        if (file.isEmpty()) {
-            return "上传失败，请选择文件";
-        }
-        try {
-            InputStream is = file.getInputStream();
-            byte[] pic = new byte[(int) file.getSize()];
-            is.read(pic);
-            final picture picture = new picture();
-            picture.setPic(pic);
-            pictureMapper.insert(picture);
-            final News news = newsService.getById(id);
-            final List<picture> pictures = pictureMapper.selectList(null);
-
-            int pId;
-            if (pictures.size()==0)
-            {
-                pId = 1;
-            }
-            else
-            {
-                pId = pictures.get(pictures.size()-1).getId();
-            }
-            news.setPicId(pId);
-            newsService.updateById(news);
-
-
-            return "上传成功";
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "success";
-    }
-
-
-    @GetMapping(value="/news/getPhoto/{id}")
-    @Async
-    @ApiOperation(value = "获取图片,通过表格表记录的ID")
-    public void getPhotoById(@PathVariable("id")int id, final HttpServletResponse response) throws IOException {
-        picture p = pictureMapper.selectById(id);
-        byte[] data = p.getPic();
-        response.setContentType("image/png");
-        response.setCharacterEncoding("UTF-8");
-        OutputStream outputSream = response.getOutputStream();
-        InputStream in = new ByteArrayInputStream(data);
-        int len = 0;
-        byte[] buf = new byte[1024];
-        while ((len = in.read(buf, 0, 1024)) != -1) {
-            outputSream.write(buf, 0, len);
-        }
-        outputSream.close();
-    }
+//    @Autowired
+//    private PictureMapper pictureMapper;
+//
+//    @PostMapping("/news/upload/{id}")
+//    @ApiOperation(value = "上传文件")
+//    public String savePic(@RequestParam("file") MultipartFile file,@PathVariable("id")int id) {
+//        if (file.isEmpty()) {
+//            return "上传失败，请选择文件";
+//        }
+//        try {
+//            InputStream is = file.getInputStream();
+//            byte[] pic = new byte[(int) file.getSize()];
+//            is.read(pic);
+//            final picture picture = new picture();
+//            picture.setPic(pic);
+//            pictureMapper.insert(picture);
+//            final News news = newsService.getById(id);
+//            final List<picture> pictures = pictureMapper.selectList(null);
+//
+//            int pId;
+//            if (pictures.size()==0)
+//            {
+//                pId = 1;
+//            }
+//            else
+//            {
+//                pId = pictures.get(pictures.size()-1).getId();
+//            }
+//            news.setPicId(pId);
+//            newsService.updateById(news);
+//
+//
+//            return "上传成功";
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return "success";
+//    }
+//
+//
+//
+//    @GetMapping(value="/news/getPhoto/{id}")
+//    @Async
+//    @ApiOperation(value = "获取图片,通过表格表记录的ID")
+//    public void getPhotoById(@PathVariable("id")int id, final HttpServletResponse response) throws IOException {
+//        picture p = pictureMapper.selectById(id);
+//        byte[] data = p.getPic();
+//        response.setContentType("image/png");
+//        response.setCharacterEncoding("UTF-8");
+//        OutputStream outputSream = response.getOutputStream();
+//        InputStream in = new ByteArrayInputStream(data);
+//        int len = 0;
+//        byte[] buf = new byte[1024];
+//        while ((len = in.read(buf, 0, 1024)) != -1) {
+//            outputSream.write(buf, 0, len);
+//        }
+//        outputSream.close();
+//    }
 
     @GetMapping(value = "/news/updateId")
     public String UpdateId()

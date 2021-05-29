@@ -1,7 +1,8 @@
 package com.gcsj.controller;
 
 import com.gcsj.Service.NoticeService;
-import com.gcsj.Utils.OperLog;
+import com.gcsj.annotation.LoginToken;
+import com.gcsj.annotation.OperLog;
 import com.gcsj.mapper.NoticeMapper;
 import com.gcsj.pojo.notice;
 import io.swagger.annotations.Api;
@@ -44,6 +45,7 @@ public class noticeController {
 
 
     @PostMapping("/notice/add")
+    @LoginToken
     @OperLog(operModul = "通知",operType = "ADD",operDesc = "添加通知")
     public String addNotice(@Param("notices") notice notices)
     {
@@ -54,16 +56,18 @@ public class noticeController {
     }
 
     @PutMapping("/notice/updateById")
+    @LoginToken
     @OperLog(operModul = "通知",operType = "POST",operDesc = "修改通知")
     public String updateNotice(@Param("notice") notice notices)
     {
         if (noticeService.updateById(notices))
             return "success!";
         else
-            return "file!";
+            return "fail!";
     }
 
     @DeleteMapping("/notice/delete/{id}")
+    @LoginToken
     @OperLog(operModul = "通知",operType = "DELETE",operDesc = "删除通知")
     public String noticeDelete(@PathVariable("id")Long id)
     {
@@ -72,9 +76,4 @@ public class noticeController {
         else return "fail!";
 
     }
-
-
-
-
-
 }

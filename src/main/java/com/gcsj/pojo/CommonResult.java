@@ -13,4 +13,6 @@ import lombok.experimental.Accessors;
 public class CommonResult{
     private Integer value;
     private String  name;
+
+
 }
