@@ -21,7 +21,7 @@ public class JwtTokenUtil {
      * 生成token
      *
      * @param claims 要传送消息map
-     * @param Map<String, Object>
+     * @param "Map"<String, Object>
      * @return
      */
     public static String generate(Map<String, Object> claims) {

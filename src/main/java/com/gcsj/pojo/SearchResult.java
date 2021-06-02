@@ -1,18 +1,16 @@
 package com.gcsj.pojo;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Accessors(chain = true)
-public class CommonResult{
-    private Integer value;
-    private String  name;
+public class SearchResult <T,S,Q>{
+    public ListResult listResult1;
+    public ListResult listResult2;
+    public ListResult listResult3;
 }

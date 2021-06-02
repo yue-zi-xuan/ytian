@@ -101,7 +101,7 @@ public class AwardsController {
      * @return:void
      */
 
-    @DeleteMapping("/Awards/del/{AwardsId}")
+    @DeleteMapping("/interceptor/Awards/del/{AwardsId}")
     @LoginToken
     @OperLog(operModul = "竞赛奖项",operType = "DEL",operDesc = "删除ById")
     public void delete(@PathVariable("AwardsId") Long AwardsId)
@@ -117,7 +117,7 @@ public class AwardsController {
      */
 
     @PostMapping("/Awards/add")
-    @LoginToken
+    @LoginToken(value = false)
     @OperLog(operModul = "奖项",operDesc = "新增操作",operType = "ADD")
     public String add(@Param("awards") Awards awards)
     {
@@ -133,7 +133,7 @@ public class AwardsController {
      * @return:String
      */
     @PutMapping("/Awards/put")
-    @LoginToken
+    @LoginToken(value = false)
     @OperLog(operModul = "奖项",operDesc = "修改操作",operType = "PUT")
     public String post(@Param("awards") Awards awards)
     {

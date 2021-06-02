@@ -73,7 +73,7 @@ public class CompetitionController {
      */
 
     @DeleteMapping("/competition/del/{id}")
-    @LoginToken
+    @LoginToken(value = false)
     @OperLog(operModul = "竞赛",operDesc = "删除操作",operType = "DEL")
     public void deleteCompetition(@PathVariable("id") Long id){
         competitionMapper.deleteById(id);
@@ -87,8 +87,8 @@ public class CompetitionController {
      */
     @ResponseBody
     @PostMapping("/competition/add")
-    @LoginToken
-    @OperLog(operModul = "竞赛",operDesc = "更新操作",operType = "ADD")
+    @LoginToken(value = false)
+    @OperLog(operModul = "竞赛",operDesc = "添加操作",operType = "ADD")
     public String addCompetition(@Param("competition") Competition competition){
         if(completionService.save(competition))
             return "success!";
@@ -104,7 +104,7 @@ public class CompetitionController {
      */
 
     @PutMapping("/competition/put")
-    @LoginToken
+    @LoginToken(value = false)
     @OperLog(operModul = "竞赛",operDesc = "修改操作",operType = "PUT")
     public String postCompetition(@Param("competition") Competition competition){
         if(completionService.updateById(competition))

@@ -158,7 +158,7 @@ public class natureController {
 
 
         final LinkedHashMap<String, Float> maps = new LinkedHashMap<String, Float>();
-
+        //根据nature获取学生列表
         List<student_y> studentYList = studentService.list(new QueryWrapper<student_y>().like("nature", nature));
         final ArrayList<Long> list = new ArrayList<>();
         studentYList.forEach(s -> list.add(s.getStuID()));

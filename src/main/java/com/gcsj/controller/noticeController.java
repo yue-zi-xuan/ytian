@@ -1,5 +1,6 @@
 package com.gcsj.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.gcsj.Service.NoticeService;
 import com.gcsj.annotation.LoginToken;
 import com.gcsj.annotation.OperLog;
@@ -24,7 +25,7 @@ public class noticeController {
 
     @GetMapping("/notice/getAll")
     public List<notice> getAll(){
-        List<notice> list = noticeService.list();
+        List<notice> list = noticeService.list(new QueryWrapper<notice>().orderByDesc("time"));
         for (notice c:list
         ) {
            if (c.getTime()!=null){
@@ -45,7 +46,7 @@ public class noticeController {
 
 
     @PostMapping("/notice/add")
-    @LoginToken
+    @LoginToken(value = false)
     @OperLog(operModul = "通知",operType = "ADD",operDesc = "添加通知")
     public String addNotice(@Param("notices") notice notices)
     {
@@ -56,7 +57,7 @@ public class noticeController {
     }
 
     @PutMapping("/notice/updateById")
-    @LoginToken
+    @LoginToken(value = false)
     @OperLog(operModul = "通知",operType = "POST",operDesc = "修改通知")
     public String updateNotice(@Param("notice") notice notices)
     {
@@ -67,7 +68,7 @@ public class noticeController {
     }
 
     @DeleteMapping("/notice/delete/{id}")
-    @LoginToken
+    @LoginToken(value = false)
     @OperLog(operModul = "通知",operType = "DELETE",operDesc = "删除通知")
     public String noticeDelete(@PathVariable("id")Long id)
     {

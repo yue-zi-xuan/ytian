@@ -10,12 +10,17 @@ import com.gcsj.Utils.logsUtils;
 import com.gcsj.mapper.NewsMapper;
 import com.gcsj.pojo.News;
 import io.swagger.annotations.Api;
+import lombok.SneakyThrows;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.crypto.Data;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -37,17 +42,19 @@ public class NewsController {
     public List<News> getNewsLike(@PathVariable("title") String title)
     {
 
-        return newsService.list(new QueryWrapper<News>().like("title",title));
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        return newsService.list(new QueryWrapper<News>().like("title",title).orderByDesc("time"));
     }
 
     /**
      * @author:岳子譞
-     * @description :新增或修改新闻
+     * @description :新增
      * @Date:2021/4/21
      */
 
-    @PostMapping("News/add")
-    @LoginToken
+    @PostMapping("/News/add")
+    @LoginToken(value = false)
     @OperLog(operModul = "新闻",operDesc = "新增新闻",operType = "ADD")
     public String add(@Param("news") News news) throws ParseException {
         news.setTime(logsUtils.TransformTime(news.getTime()));
@@ -61,8 +68,8 @@ public class NewsController {
      * @Date:2021/4/21
      */
 
-    @PutMapping("News/put")
-    @LoginToken
+    @PutMapping("/News/put")
+    @LoginToken(value = false)
     @OperLog(operModul = "新闻",operDesc = "修改新闻",operType = "PUT")
     public String post(@Param("news") News news) throws ParseException {
         news.setTime(logsUtils.TransformTime(news.getTime()));
@@ -77,7 +84,7 @@ public class NewsController {
      */
 
     @DeleteMapping("/News/del/{id}")
-    @LoginToken
+    @LoginToken(value = false)
     @OperLog(operModul = "新闻",operDesc = "删除新闻ById",operType = "DEL")
     public void delete(@PathVariable("id")Long id)
     {

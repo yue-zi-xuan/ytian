@@ -69,8 +69,8 @@ public class CompetitionNewsController {
      * @return:String
      */
 
-    @PutMapping("competitionNews/put")
-    @LoginToken
+    @PutMapping("/interceptor/competitionNews/put")
+    @LoginToken(value = false)
     @OperLog(operModul = "竞赛新闻",operDesc = "修改操作",operType = "PUT")
     public String post(@Param("competitionNews") CompetitionNews competitionNews) throws ParseException {
         competitionNews.setTime(logsUtils.TransformTime(competitionNews.getTime()));
@@ -85,8 +85,8 @@ public class CompetitionNewsController {
      * @return:String
      */
 
-    @PostMapping("competitionNews/add")
-    @LoginToken
+    @PostMapping("/interceptor/competitionNews/add")
+    @LoginToken(value = false)
     @OperLog(operModul = "竞赛新闻",operDesc = "新增竞赛新闻",operType = "ADD")
     public String add(@Param("competitionNews") CompetitionNews competitionNews) throws ParseException {
         competitionNews.setTime(logsUtils.TransformTime(competitionNews.getTime()));
@@ -101,8 +101,8 @@ public class CompetitionNewsController {
      * @return:void
      */
 
-    @DeleteMapping("/competitionNews/del/{id}")
-    @LoginToken
+    @DeleteMapping("/interceptor/competitionNews/del/{id}")
+    @LoginToken(value = false)
     @OperLog(operModul = "竞赛新闻",operDesc = "删除新闻ById",operType = "DEL")
     public void delete(@PathVariable("id") Long id) {
         competitionNewsService.removeById(id);
@@ -130,7 +130,8 @@ public class CompetitionNewsController {
     @GetMapping("/competitionNews/getAll")
     public List<CompetitionNews> getAll() {
 
-        List<CompetitionNews> list = competitionNewsMapper.selectList(null);
+        List<CompetitionNews> list = competitionNewsMapper.selectList(new QueryWrapper<CompetitionNews>().
+                orderByDesc("time"));
         for (CompetitionNews c:list
              ) {
            if (c.getTime()!=null){
@@ -152,7 +153,7 @@ public class CompetitionNewsController {
     @GetMapping("competitionNews/title/getAll")
     public List<String> getTitle() {
         QueryWrapper<CompetitionNews> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("title");
+        queryWrapper.select("title").orderByDesc("time");
         List<CompetitionNews> list = competitionNewsMapper.selectList(queryWrapper);
         final List<String> strings = new ArrayList<String>();
         for (CompetitionNews competitionNews : list
